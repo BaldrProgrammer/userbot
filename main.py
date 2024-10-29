@@ -9,7 +9,7 @@ app = Client('account', api_id, api_hash)
 
 
 @app.on_message(filters.regex(r'^\.бот'))
-def cid(client, message):
+def bot(client, message):
     client.send_message(message.chat.id, 'Работает.')
 
 
@@ -73,5 +73,20 @@ def ban(client, message):
         if user_status.privileges.can_restrict_members:
             if message.reply_to_message:
                 client.ban_chat_member(cid, message.reply_to_message.from_user.id)
+
+
+@app.on_message(filters.regex(r'^\.разбан'))
+def unban(client, message):
+    cid = message.chat.id
+    uid = message.from_user.id
+    if uid == client.get_me().id:
+        user_status = client.get_chat_member(cid, uid)
+        if user_status.privileges.can_restrict_members:
+            if message.reply_to_message:
+                client.unban_chat_member(cid, message.reply_to_message.from_user.id)
+            else:
+                args = message.text.split()
+                if len(args) != 1:
+                    client.unban_chat_member(cid, args[1])
 
 app.run()
