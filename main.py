@@ -2,11 +2,15 @@ from pyrogram import Client, filters
 from pyrogram.enums import ParseMode
 from pyrogram.types import ChatPermissions
 from datetime import datetime
+from dotenv import load_dotenv
 import json
 import time
+import os
 
-api_id = '25836426'
-api_hash = '23fb31c8eea83588c3894a30cda72f7f'
+
+load_dotenv()
+api_id = os.getenv('API_KEY')
+api_hash = os.getenv('API_HASH')
 
 app = Client('account', api_id, api_hash)
 
