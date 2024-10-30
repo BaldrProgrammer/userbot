@@ -1,6 +1,8 @@
 from pyrogram import Client, filters
 from pyrogram.enums import ParseMode
+from pyrogram.types import ChatPermissions
 import json
+import time
 
 api_id = '25836426'
 api_hash = '23fb31c8eea83588c3894a30cda72f7f'
@@ -88,5 +90,34 @@ def unban(client, message):
                 args = message.text.split()
                 if len(args) != 1:
                     client.unban_chat_member(cid, args[1])
+
+
+@app.on_message(filters.regex(r'^\.мут'))
+def mute(client, message):
+    cid = message.chat.id
+    uid = message.from_user.id
+    args = message.text.split()
+    if uid == client.get_me().id:
+        user_status = client.get_chat_member(cid, uid)
+        if user_status.privileges.can_restrict_members:
+            if message.reply_to_message:
+                id_to_mute = message.reply_to_message.from_user.id
+            else:
+                id_to_mute = args[3]
+            times = {
+                'с': 1,
+                'м': 60,
+                'ч': 3600,
+                'д': 86400,
+                'н': 604800
+            }
+            time_now = time.time()
+            time_arg = args[1]
+            time_how = args[2]
+            if time_how in times:
+                client.restrict_chat_member(cid, id_to_mute,
+                                            permissions=ChatPermissions(can_send_messages=False),
+                                            until_date=time_now + time_arg * times[time_how])
+
 
 app.run()
