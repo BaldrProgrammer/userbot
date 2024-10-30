@@ -121,4 +121,19 @@ def mute(client, message):
                                             until_date=datetime.fromtimestamp(time_now + time_arg * times[time_how]))
 
 
+@app.on_message(filters.regex(r'^\.размут'))
+def unmute(client, message):
+    cid = message.chat.id
+    uid = message.from_user.id
+    if uid == client.get_me().id:
+        user_status = client.get_chat_member(cid, uid)
+        if user_status.privileges.can_restrict_members:
+            if message.reply_to_message:
+                client.restrict_chat_member(cid, message.reply_to_message.from_user.id, permissions=ChatPermissions(can_send_messages=True))
+            else:
+                args = message.text.split()
+                if len(args) != 1:
+                    client.restrict_chat_member(cid, args[3], permissions=ChatPermissions(can_send_messages=True))
+
+
 app.run()
