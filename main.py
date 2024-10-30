@@ -1,6 +1,7 @@
 from pyrogram import Client, filters
 from pyrogram.enums import ParseMode
 from pyrogram.types import ChatPermissions
+from datetime import datetime
 import json
 import time
 
@@ -112,12 +113,12 @@ def mute(client, message):
                 'н': 604800
             }
             time_now = time.time()
-            time_arg = args[1]
+            time_arg = int(args[1])
             time_how = args[2]
             if time_how in times:
                 client.restrict_chat_member(cid, id_to_mute,
                                             permissions=ChatPermissions(can_send_messages=False),
-                                            until_date=time_now + time_arg * times[time_how])
+                                            until_date=datetime.fromtimestamp(time_now + time_arg * times[time_how]))
 
 
 app.run()
