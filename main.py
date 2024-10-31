@@ -1,8 +1,10 @@
 from pyrogram import Client, filters
 from pyrogram.enums import ParseMode
 from pyrogram.types import ChatPermissions
+from pyrogram.handlers import MessageHandler
 from datetime import datetime
 from dotenv import load_dotenv
+import importlib
 import json
 import time
 import os
@@ -13,6 +15,15 @@ api_id = os.getenv('API_KEY')
 api_hash = os.getenv('API_HASH')
 
 app = Client('account', api_id, api_hash)
+
+# ИМЯ ТВОИХ МОДУЛЕЙ ДОБАВЛЯТЬ СЮДА
+import_files = ['handlers']
+for file in import_files:
+    module = importlib.import_module('your_modules.' + file)
+    funcs = dir(module)
+    for func in funcs:
+        if not '__' in func:
+            app.add_handler(MessageHandler(getattr(module, func), filters.command('start')))
 
 
 @app.on_message(filters.regex(r'^\.бот'))
