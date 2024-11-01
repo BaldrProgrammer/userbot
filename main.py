@@ -1,3 +1,4 @@
+from funcs import get_video, generate_text
 from pyrogram import Client, filters
 from pyrogram.enums import ParseMode
 from pyrogram.types import ChatPermissions
@@ -8,7 +9,6 @@ import importlib
 import json
 import time
 import os
-
 
 load_dotenv()
 api_id = os.getenv('API_KEY')
@@ -150,5 +150,27 @@ def unmute(client, message):
                 if len(args) != 1:
                     client.restrict_chat_member(cid, args[3], permissions=ChatPermissions(can_send_messages=True))
 
+
+@app.on_message(filters.regex(r'\.скачать'))
+def install(client, message):
+    cid = message.chat.id
+    args = message.text.split()
+    print(args)
+    url = args[1]
+    get_video(url)
+    client.send_video(cid, 'cache/video.mp4')
+    os.remove('cache/video.mp4')
+    if os.path.exists('cache/video'):
+        os.remove('cache/video')
+
+
+@app.on_message(filters.regex(r'\.гпт'))
+def gpt(client, message):
+    cid = message.chat.id
+    args = message.text.split()
+    del args[0]
+    prompt = ' '.join(args)
+    text = generate_text(prompt)
+    client.send_message(cid, text)
 
 app.run()
