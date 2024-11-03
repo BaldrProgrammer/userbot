@@ -144,7 +144,8 @@ def unmute(client, message):
         user_status = client.get_chat_member(cid, uid)
         if user_status.privileges.can_restrict_members:
             if message.reply_to_message:
-                client.restrict_chat_member(cid, message.reply_to_message.from_user.id, permissions=ChatPermissions(can_send_messages=True))
+                client.restrict_chat_member(cid, message.reply_to_message.from_user.id,
+                                            permissions=ChatPermissions(can_send_messages=True))
             else:
                 args = message.text.split()
                 if len(args) != 1:
@@ -184,14 +185,14 @@ def autoanswer(client, message):
         config = json.loads(file.read())
     config['autoanswer'] = phrase
     with open('storage/config.json', 'w', encoding='utf-8') as file:
-         file.write(json.dumps(config, indent=2))
+        file.write(json.dumps(config, indent=2))
 
 
 @app.on_message()
 async def any_message(client, message):
     cid = message.chat.id
     history = [message async for message in client.get_chat_history(cid, limit=2)]
-    if message.from_user.id == client.get_me().id:
+    if message.from_user.id == (await client.get_me()).id:
         if len(history) == 1:
             with open('storage/config.json', 'r', encoding='utf-8') as file:
                 config = json.loads(file.read())
