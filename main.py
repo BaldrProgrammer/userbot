@@ -36,7 +36,7 @@ def cid(client, message):
     client.send_message(message.chat.id, f'`{message.chat.id}`', parse_mode=ParseMode.MARKDOWN)
 
 
-@app.on_message(filters.regex(r'^\.\+пароль'))
+@app.on_message(filters.regex(r'^\.пп'))
 def newpasswd(client, message):
     print('хуй')
     if message.from_user.id == client.get_me().id:
@@ -50,7 +50,7 @@ def newpasswd(client, message):
         client.send_message(message.chat.id, f'Создан/перезаписан пароль {args[1]} на "{args[2]}"')
 
 
-@app.on_message(filters.regex(r'^\.\-пароль'))
+@app.on_message(filters.regex(r'^\.мп'))
 def delpasswd(client, message):
     if message.from_user.id == client.get_me().id:
         args = message.text.split()
@@ -66,7 +66,7 @@ def delpasswd(client, message):
             client.send_message(message.chat.id, 'Такого пароля не сохранено.')
 
 
-@app.on_message(filters.regex(r'^\.пароль'))
+@app.on_message(filters.regex(r'^\.п'))
 def passwd(client, message):
     if message.from_user.id == client.get_me().id:
         args = message.text.split()
@@ -172,5 +172,31 @@ def gpt(client, message):
     prompt = ' '.join(args)
     text = generate_text(prompt)
     client.send_message(cid, text)
+
+
+@app.on_message(filters.regex(r'\.автоответчик'))
+def autoanswer(client, message):
+    cid = message.chat.id
+    phrase = ' '.join(message.text.split(' ')[1:])
+    if phrase == 'выключить':
+        phrase = None
+    with open('storage/config.json', 'r', encoding='utf-8') as file:
+        config = json.loads(file.read())
+    config['autoanswer'] = phrase
+    with open('storage/config.json', 'w', encoding='utf-8') as file:
+         file.write(json.dumps(config, indent=2))
+
+
+@app.on_message()
+async def any_message(client, message):
+    cid = message.chat.id
+    history = [message async for message in client.get_chat_history(cid, limit=2)]
+    if message.from_user.id == client.get_me().id:
+        if len(history) == 1:
+            with open('storage/config.json', 'r', encoding='utf-8') as file:
+                config = json.loads(file.read())
+            if config['autoanswer']:
+                await client.send_message(cid, config['autoanswer'])
+
 
 app.run()
