@@ -1,6 +1,6 @@
 from funcs import get_video, generate_text
 from pyrogram import Client, filters
-from pyrogram.enums import ParseMode
+from pyrogram.enums import ParseMode, ChatType
 from pyrogram.types import ChatPermissions
 from pyrogram.handlers import MessageHandler
 from datetime import datetime
@@ -191,13 +191,14 @@ def autoanswer(client, message):
 @app.on_message()
 async def any_message(client, message):
     cid = message.chat.id
-    history = [message async for message in client.get_chat_history(cid, limit=2)]
-    if message.from_user.id == (await client.get_me()).id:
-        if len(history) == 1:
-            with open('storage/config.json', 'r', encoding='utf-8') as file:
-                config = json.loads(file.read())
-            if config['autoanswer']:
-                await client.send_message(cid, config['autoanswer'])
+    if message.chat.type == ChatType.PRIVATE:
+        history = [message async for message in client.get_chat_history(cid, limit=2)]
+        if message.from_user.id == (await client.get_me()).id:
+            if len(history) == 1:
+                with open('storage/config.json', 'r', encoding='utf-8') as file:
+                    config = json.loads(file.read())
+                if config['autoanswer']:
+                    await client.send_message(cid, config['autoanswer'])
 
 
 app.run()
