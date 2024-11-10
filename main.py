@@ -28,12 +28,14 @@ for file in import_files:
 
 @app.on_message(filters.regex(r'^\.бот'))
 def bot(client, message):
-    client.send_message(message.chat.id, 'Работает.')
+    if message.from_user.id == client.get_me().id:
+        client.send_message(message.chat.id, 'Работает.')
 
 
 @app.on_message(filters.regex(r'^\.сид'))
 def cid(client, message):
-    client.send_message(message.chat.id, f'`{message.chat.id}`', parse_mode=ParseMode.MARKDOWN)
+    if message.from_user.id == client.get_me().id:
+        client.send_message(message.chat.id, f'`{message.chat.id}`', parse_mode=ParseMode.MARKDOWN)
 
 
 @app.on_message(filters.regex(r'^\.пп'))
@@ -177,15 +179,15 @@ def gpt(client, message):
 
 @app.on_message(filters.regex(r'\.автоответчик'))
 def autoanswer(client, message):
-    cid = message.chat.id
-    phrase = ' '.join(message.text.split(' ')[1:])
-    if phrase == 'выключить':
-        phrase = None
-    with open('storage/config.json', 'r', encoding='utf-8') as file:
-        config = json.loads(file.read())
-    config['autoanswer'] = phrase
-    with open('storage/config.json', 'w', encoding='utf-8') as file:
-        file.write(json.dumps(config, indent=2))
+    if message.from_user.id == client.get_me().id:
+        phrase = ' '.join(message.text.split(' ')[1:])
+        if phrase == 'выключить':
+            phrase = None
+        with open('storage/config.json', 'r', encoding='utf-8') as file:
+            config = json.loads(file.read())
+        config['autoanswer'] = phrase
+        with open('storage/config.json', 'w', encoding='utf-8') as file:
+            file.write(json.dumps(config, indent=2))
 
 
 @app.on_message()
